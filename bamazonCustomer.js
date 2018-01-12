@@ -45,7 +45,7 @@ function initialize() {
     }
     ]).then(function(answer) {
         if (answer.buyItem.toUpperCase() === "YES") {
-            // buyItem();
+            buyItem();
         } else {
             console.log("That's ok, we'll be here when you're ready! See ya!");
             connection.end();
@@ -70,5 +70,23 @@ function buyItem() {
                 }
         }
     ]).then(function(answer) {
-        connection.query("")
+        connection.query("SELECT * FROM products WHERE ?", {item_id:answer.selectedItem}, function(err, res) {
+            if (err) throw err;
+            console.log("res.stock_quantity: " + res[0].stock_quantity);
+            if (answer.itemAmount <= parseInt(res[0].stock_quantity)) {
+                console.log("Buying " + answer.itemAmount + " Item Number " + answer.selectedItem + "!");
+                connection.query("UPDATE products SET stock_quantity = ", (res[0].stock_quantity - answer.itemAmount) 
+                                + "WHERE item_id = answer.selectedItem", function(err, res) {
+                    if (err) throw err;
+                    console.log("Your order has been placed! The amount charged was $" + res[0].price + "\nSee ya next time!");
+                    console.log("------------------------------------------");
+                    connection.end();
+            }) 
+            } else {
+                console.log("Uh oh! Unfortunatly there are only " + res[0].stock_quantity + " left in stock. \nPlease try again.");
+                console.log("---------------------------------------------");
+                buyItem();
+            }
+        })
     })
+ }
