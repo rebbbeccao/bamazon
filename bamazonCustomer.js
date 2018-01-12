@@ -16,10 +16,10 @@ connection.connect(function(err) {
 });
 
 function displayItems() {
-    console.log("\n**** Welcome to BAMAZON **** \n Your Node.js Superstore!")
+    console.log("\n**** Welcome to BAMAZON - Your Node.js Superstore! ****")
     connection.query("SELECT * FROM products", function(err, res) {
         for (var i = 0; i < res.length; i++) {
-            console.log("\n")
+            console.log("\n -----------------------------------------------------------------------------")
             console.log(
                         "| Item Number: " +
                         res[i].item_id +
@@ -48,7 +48,7 @@ function initialize() {
         if (answer.buyItem.toUpperCase() === "YES") {
             buyItem();
         } else {
-            console.log("That's ok, we'll be here when you're ready! See ya!");
+            console.log("*** That's ok, we'll be here when you're ready!\n*** Goodbye for now! ");
             connection.end();
         }
     });
@@ -73,10 +73,10 @@ function buyItem() {
     ]).then(function(answer) {
         connection.query("SELECT * FROM products WHERE ?", {item_id: answer.selectedItem}, function(err, res) {
             if (err) throw err;
-            console.log("res.stock_quantity: " + res[0].stock_quantity);
+            // console.log("res.stock_quantity: " + res[0].stock_quantity);
             
             if (answer.itemAmount <= parseInt(res[0].stock_quantity)) {
-                console.log("Buying " + answer.itemAmount + " Item Number " + answer.selectedItem + "!");
+                console.log("*** Buying " + answer.itemAmount + " Item Number " + answer.selectedItem + "!");
                 
                 connection.query("UPDATE products SET ? WHERE ?", 
                     [{
@@ -87,12 +87,12 @@ function buyItem() {
                         item_id:  answer.selectedItem
                     }], function(err) {
                         if (err) throw err;
-                        console.log("Your order has been placed! The amount charged was $" + res[0].price + "\n");
+                        console.log("*** Your order has been placed! The amount charged was $" + (res[0].price * answer.itemAmount) + "\n");
                         console.log("------------------------------------------");
                         resetOption();
                         })
             } else {
-                console.log("Uh oh! Unfortunatly there are only " + res[0].stock_quantity + " left in stock. \nPlease try again.");
+                console.log("*** Oh no! Unfortunatly there are only " + res[0].stock_quantity + " left in stock.\n*** Please try again.");
                 console.log("---------------------------------------------");
                 buyItem();
             }
@@ -108,11 +108,11 @@ function buyItem() {
         choices: ["YES", "NO"]
     }). then(function(answer){
         if (answer.done.toUpperCase() === "YES") {
-            console.log("---------------------------------------------\nThanks for shopping, See ya next time!")
+            console.log("---------------------------------------------\n*** Thanks for shopping, See ya next time!")
             console.log("---------------------------------------------");
             connection.end();
         } else {
-            console.log("\nReturning to BAMAZON Home...\n");
+            console.log("***\nReturning to BAMAZON Home...\n");
             displayItems();
         }
     })
